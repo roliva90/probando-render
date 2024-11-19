@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+<title>Listado de Clientes</title>
+{% endblock %}
+{% block content %}
+<main id="main" class="main">
+    <section class="section dashboard">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="card custom-card">
+                        <div class="card-body">
+                            <h1 class="card-title" align="center">Listado de Clientes</h1>
+                            <a href="{% url 'registro' %}" class="btn btn-success btn-sm">Nuevo </a>
+                            {% for message in messages %}
+                            <div class="alert alert-success">
+                                {{ message }}
+                            </div>
+                            {% endfor %}
+                            
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Correo Electrónico</th>
+                                            <th>Rol</th>
+                                            <th>Opciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for cliente in clientes %}
+                                        <tr>
+                                            <td>{{ cliente.nombre }}</td>
+                                            <td>{{ cliente.email }}</td>
+                                            <td>{{ cliente.rol.nombre }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-info btn-sm"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewModal{{ cliente.id }}"> <i class="bi bi-eye"></i> </button>
+                                                <a href="{% url 'edit_client' cliente.id %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i></a>
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteModal{{ cliente.id }}"><i class="bi bi-trash"></i></button>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Modal para Ver Cliente -->
+                                        <div class="modal fade" id="viewModal{{ cliente.id }}" tabindex="-1"
+                                            aria-labelledby="viewModalLabel{{ cliente.id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header text-center">
+                                                        <h5 class="modal-title w-100"
+                                                            id="viewModalLabel{{ cliente.id }}">
+                                                            Detalles de Cliente
+                                                        </h5>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-4">
+                                                                <p><strong>Nombre:</strong> {{ cliente.nombre }}</p>
+                                                            </div>
+                                                            {% if cliente.persona %}
+                                                            <div class="col-md-4">
+                                                                <p><strong>Apellidos:</strong> {{ cliente.persona.apellidos }}</p>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <p><strong>Teléfono:</strong> {{ cliente.persona.telefono }}</p>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <p><strong>DNI:</strong> {{ cliente.persona.dni }}</p>
+                                                            </div>
+                                                            {% elif cliente.comercio %}
+                                                            <div class="col-md-4">
+                                                                <p><strong>RUT:</strong> {{ cliente.comercio.rut }}</p>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <p><strong>Encargue:</strong> {{ cliente.comercio.encargue }}</p>
+                                                            </div>
+                                                            {% endif %}
+                                                            <div class="col-md-4">
+                                                                <p><strong>Email:</strong> {{ cliente.email }}</p>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <p><strong>Rol:</strong> {{ cliente.rol.nombre }}</p>
+                                                            </div>                                                            
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-warning"
+                                                            data-bs-dismiss="modal">Cerrar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal para Confirmar Eliminación -->
+                                        <div class="modal fade" id="deleteModal{{ cliente.id }}" tabindex="-1"
+                                            aria-labelledby="deleteModalLabel{{ cliente.id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header text-center">
+                                                        <h5 class="modal-title w-100"
+                                                            id="deleteModalLabel{{ cliente.id }}">
+                                                            Confirmar Eliminación
+                                                        </h5>
+                                                    </div>
+                                                    <form action="{% url 'delete_client' cliente.id %}" method="post">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body">
+                                                            {% if cliente.persona %}
+                                                            <p>¿Estás seguro de que quieres eliminar a la persona <strong>{{ cliente.nombre }} {{ cliente.persona.apellidos }}</strong>?</p>
+                                                            {% elif cliente.comercio %}
+                                                            <p>¿Estás seguro de que quieres eliminar el comercio <strong>{{ cliente.nombre }} con RUT {{ cliente.comercio.rut }}</strong>?</p>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+{% block footer %}
+{{ block.super }}
+{% endblock %}
